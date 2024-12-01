@@ -1,12 +1,13 @@
 open Aoc2024
 
+let read path =
+  Base.fold_lines ~path ([], []) (fun (left, right) line ->
+      Scanf.sscanf line "%d   %d" @@ fun l r -> (l :: left, r :: right))
+
 let () =
   match Sys.argv with
   | [| _; path |] ->
-      let left, right =
-        Base.fold_lines ~path ([], []) (fun (left, right) line ->
-            Scanf.sscanf line "%d   %d" @@ fun l r -> (l :: left, r :: right))
-      in
+      let left, right = read path in
       let left, right =
         (List.sort Int.compare left, List.sort Int.compare right)
       in
@@ -17,10 +18,7 @@ let () =
       in
       pfn "Aoc2024 ex1.b) Diff sum: %d" diff_sum
   | [| _; "--part2"; path |] ->
-      let left, right =
-        Base.fold_lines ~path ([], []) (fun (left, right) line ->
-            Scanf.sscanf line "%d   %d" @@ fun l r -> (l :: left, r :: right))
-      in
+      let left, right = read path in
       (* [occ v] Number of occurrences of [v] in right list. *)
       let occ : int -> int =
         let occ : (int, int) Hashtbl.t = Hashtbl.create (List.length right) in
