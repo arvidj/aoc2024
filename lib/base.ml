@@ -2,6 +2,7 @@ let sf = Printf.sprintf
 let pfn fmt = Printf.ksprintf print_endline fmt
 let efn fmt = Printf.ksprintf prerr_endline fmt
 
+(* range a b is [a ... b - 1] *)
 let range (a : int) (b : int) : int list =
   if b - a < 0 then [] else List.init (b - a) (fun i -> a + i)
 
@@ -80,6 +81,76 @@ let iter_lines3 path f =
 let sum lst = List.fold_left ( + ) 0 lst
 let min a b = if a < b then a else b
 let max a b = if a > b then a else b
+
+let list_take n xs =
+  let len = List.length xs in
+  if n < 0 || n > len then
+    raise (Invalid_argument "[list_take] n < 0 || n > len")
+  else
+    let rec aux acc n xs =
+      if n = 0 then List.rev acc
+      else
+        match xs with
+        | x :: xs -> aux (x :: acc) (n - 1) xs
+        | [] -> failwith "list_take.aux: impossible"
+    in
+    aux [] n xs
+
+let%expect_test "test list_take" =
+  let pp_int_list ls =
+    Printf.printf "[%s]\n" (String.concat ", " (List.map string_of_int ls))
+  in
+  let test n ls =
+    try pp_int_list (list_take n ls) with
+    | Invalid_argument e -> Printf.printf "invalid_arg: %s" e
+    | Failure e -> Printf.printf "error: %s" e
+  in
+  test 1 [];
+  [%expect {| invalid_arg: [list_take] n < 0 || n > len |}];
+  test 1 [ 1; 2; 3 ];
+  [%expect {| [1] |}];
+  test 4 [ 1; 2; 3 ];
+  [%expect {| invalid_arg: [list_take] n < 0 || n > len |}];
+  test 0 [ 1; 2; 3 ];
+  [%expect {| [] |}];
+  test 2 [ 1; 2; 3 ];
+  [%expect {| [1, 2] |}];
+  test 3 [ 1; 2; 3 ];
+  [%expect {| [1, 2, 3] |}]
+
+let list_remove idx xs =
+  if idx < 0 || idx > List.length xs - 1 then
+    raise (Invalid_argument "[list_remove]: idx < 0 || idx > len - 1");
+  let rec aux idx acc xs =
+    if idx = 0 then List.rev acc @ List.tl xs
+    else
+      match xs with
+      | x :: xs -> aux (idx - 1) (x :: acc) xs
+      | [] -> failwith "list_remove: unexpected exhaust"
+  in
+  aux idx [] xs
+
+let%expect_test "test list_remove" =
+  let pp_int_list ls =
+    Printf.printf "[%s]\n" (String.concat "; " (List.map string_of_int ls))
+  in
+  let test n ls =
+    try pp_int_list (list_remove n ls) with
+    | Invalid_argument e -> Printf.printf "invalid_arg: %s" e
+    | Failure e -> Printf.printf "error: %s" e
+  in
+  test 1 [];
+  [%expect {| invalid_arg: [list_remove]: idx < 0 || idx > len - 1 |}];
+  test 1 [ 1; 2; 3 ];
+  [%expect {| [1; 3] |}];
+  test 4 [ 1; 2; 3 ];
+  [%expect {| invalid_arg: [list_remove]: idx < 0 || idx > len - 1 |}];
+  test 0 [ 1; 2; 3 ];
+  [%expect {| [2; 3] |}];
+  test 2 [ 1; 2; 3 ];
+  [%expect {| [1; 2] |}];
+  test 3 [ 1; 2; 3 ];
+  [%expect {| invalid_arg: [list_remove]: idx < 0 || idx > len - 1 |}]
 
 let insert_sorted (n : int) (lst : int list) : int list =
   let rec loop acc lst =
