@@ -1,5 +1,5 @@
 (executables
- (names ex1 ex2)
+ (names ex1 ex2 ex3)
  (libraries aoc2024)
  (flags
   (:standard -open Aoc2024.Base)))

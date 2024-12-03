@@ -1,3 +1,14 @@
+(* We let some exceptions propagate. They are caught when running tests and
+   logged as errors. We want to print a human-readable version of those errors.
+   Exceptions that should be caught, such as [Not_found] or [End_of_file],
+   do not need a human-readable version. *)
+let () =
+  Printexc.register_printer @@ function
+  | Failure error -> Some error
+  | Sys_error error -> Some error
+  | _ -> None
+
+let fail fmt = Format.ksprintf failwith fmt
 let sf = Printf.sprintf
 let pfn fmt = Printf.ksprintf print_endline fmt
 let efn fmt = Printf.ksprintf prerr_endline fmt
@@ -14,6 +25,19 @@ let with_file_in path f =
   with x ->
     close_in channel;
     raise x
+
+let read_file filename =
+  with_file_in filename @@ fun ch ->
+  let buffer = Buffer.create 512 in
+  let bytes = Bytes.create 512 in
+  let rec loop () =
+    let len = input ch bytes 0 512 in
+    if len > 0 then (
+      Buffer.add_subbytes buffer bytes 0 len;
+      loop ())
+  in
+  loop ();
+  Buffer.contents buffer
 
 let iter_lines path f =
   with_file_in path @@ fun channel ->
