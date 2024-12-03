@@ -11,9 +11,8 @@ let sum1 input =
   in
   sum
 
-let sum2 ?(debug = false) input =
-  let tokens = parse_re input in
-  if debug then List.iter (fun tok -> print_endline (show_token tok)) tokens;
+let sum2 input =
+  let tokens = Parse_tyre.parse input in
   List.fold_left
     (fun (enabled, sum) tok ->
       match tok with
