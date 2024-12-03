@@ -2,6 +2,6 @@
  (name aoc2024)
  (package aoc2024)
  (inline_tests)
- (libraries re)
+ (libraries re tyre)
  (preprocess
   (pps ppx_expect ppx_deriving.show)))
