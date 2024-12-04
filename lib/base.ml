@@ -207,3 +207,25 @@ let hashtbl_update ~default tbl key f =
 
 let hashtbl_get ~default tbl key =
   Hashtbl.find_opt tbl key |> Option.value ~default
+
+let string_rev s =
+  let len = String.length s in
+  let b = Buffer.create len in
+  for i = len - 1 downto 0 do
+    Buffer.add_char b s.[i]
+  done;
+  Buffer.contents b
+
+let%expect_test "test string_rev" =
+  let test s = print_endline (string_rev s) in
+  test "foo";
+  [%expect {| oof |}];
+  test "";
+  [%expect {| |}]
+
+(* --- *)
+
+let check ~tag ~to_string ~value ~expected =
+  if value <> expected then
+    fail "%s: expected %s, got %s" tag (to_string expected) (to_string value)
+  else pfn "%s: %s" tag (to_string expected)
