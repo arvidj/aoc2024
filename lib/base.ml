@@ -12,6 +12,10 @@ let fail fmt = Format.ksprintf failwith fmt
 let sf = Printf.sprintf
 let pfn fmt = Printf.ksprintf print_endline fmt
 let efn fmt = Printf.ksprintf prerr_endline fmt
+let do_debug = Sys.getenv_opt "DEBUG" |> Option.is_some
+
+let dbg fmt =
+  Printf.ksprintf (fun s -> if do_debug then prerr_endline s else ()) fmt
 
 (* range a b is [a ... b - 1] *)
 let range (a : int) (b : int) : int list =
@@ -229,3 +233,9 @@ let check ~tag ~to_string ~value ~expected =
   if value <> expected then
     fail "%s: expected %s, got %s" tag (to_string expected) (to_string value)
   else pfn "%s: %s" tag (to_string expected)
+
+module Int_set = Set.Make (Int)
+
+let show_int_set set =
+  sf "{%s}"
+    (Int_set.elements set |> List.map string_of_int |> String.concat ", ")
