@@ -107,8 +107,8 @@ let iter_lines3 path f =
     ()
 
 let sum lst = List.fold_left ( + ) 0 lst
-let min a b = if a < b then a else b
-let max a b = if a > b then a else b
+let min = Int.min
+let max = Int.max
 
 let list_take n xs =
   let len = List.length xs in
